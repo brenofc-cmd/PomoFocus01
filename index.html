@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PomoFocus</title>
+    <link rel="stylesheet" href="pomodoro.css" />
+    <link rel="stylesheet" href="https://pyscript.net/unstable/pyscript.css"/>
+    <script defer src="https://pyscript.net/unstable/pyscript.js"></script>
+</head>
+<body>
+
+    <!-- Esquerda: Checklist -->
+    <div class="div_esquerda">
+        <div class="check_list">
+            <h2>Checklist de Tarefas</h2>
+            <input type="text" id="novaTarefa" placeholder="Adicione uma nova tarefa..">
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button id="addTask">Adicionar</button>
+                <button id="limparTask">Limpar</button>
+            </div>
+            <ul id="listaTarefas">
+                <li class="task_item"><input type="checkbox"><span>Fazer lição</span></li>
+                <li class="task_item"><input type="checkbox"><span>Estudar Python</span></li>
+                <li class="task_item"><input type="checkbox"><span>Ler livro</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Centro: Pomodoro -->
+    <div class="div_centro">
+        <div class="pomoStudy">
+            <h1>PomoStudy</h1>
+        </div>
+        <div class="modos">
+            <button id="btn_pomodoro" class="modo" py-click="setar_modo('pomodoro')">Pomodoro</button>
+            <button id="btn_curta" class="modo" py-click="setar_modo('curta')">Pausa Curta</button>
+            <button id="btn_longa" class="modo" py-click="setar_modo('longa')">Pausa Longa</button>
+        </div>
+
+        <div class="timer" id="timer">25:00</div>
+
+        <div class="timer_control">
+            <button class="controle" py-click="iniciar_timer()">Iniciar</button>
+            <button class="controle" py-click="pausar_timer()">Pausar</button>
+            <button class="controle" py-click="reiniciar_timer()">Reiniciar</button>
+        </div>
+    </div>
+
+    <!-- Direita: Estatísticas -->
+    <div class="div_direita">
+        <h2>Estatísticas de Estudo</h2>
+        <div class="card">
+            <ul>
+                <li class="titulos">Hoje</li>
+                <li class="horarios">2:45</li>
+                <li class="escrita">Horas de Foco</li>
+            </ul>
+        </div>
+        <div class="card">
+            <ul>
+                <li class="titulos">Esta Semana</li>
+                <li class="horarios">12:30</li>
+                <li class="escrita">Horas de Foco</li>
+            </ul>
+        </div>
+        <div class="card">
+            <ul>
+                <li class="titulos">Este Mês</li>
+                <li class="horarios">40:00</li>
+                <li class="escrita">Horas de Foco</li>
+            </ul>
+        </div>
+
+        <div class="grafico">Colocar Gráfico</div>
+    </div>
+
+    <!-- Código Python com PyScript -->
+    <py-script>
+from js import document, setInterval, clearInterval
+from pyodide.ffi import create_proxy
+
+tempo_padroes = {
+    "pomodoro": 25 * 60,
+    "curta": 5 * 60,
+    "longa": 15 * 60
+}
+
+modo_atual = "pomodoro"
+tempo_restante = tempo_padroes[modo_atual]
+timer_ativo = False
+intervalo = None
+
+def atualizar_display():
+    minutos = tempo_restante // 60
+    segundos = tempo_restante % 60
+    document.getElementById("timer").innerText = f"{minutos:02d}:{segundos:02d}"
+
+def setar_modo(modo):
+    global tempo_restante, modo_atual, intervalo, timer_ativo
+    modo_atual = modo
+    tempo_restante = tempo_padroes[modo]
+    atualizar_display()
+
+    # Resetar botões de modo
+    botoes = ["btn_pomodoro", "btn_curta", "btn_longa"]
+    for b in botoes:
+        document.getElementById(b).style.backgroundColor = "#99e4c0"
+    if modo == "pomodoro":
+        document.getElementById("btn_pomodoro").style.backgroundColor = "#738f81"
+    elif modo == "curta":
+        document.getElementById("btn_curta").style.backgroundColor = "#738f81"
+    elif modo == "longa":
+        document.getElementById("btn_longa").style.backgroundColor = "#738f81"
+
+def contar_tempo(*args):
+    global tempo_restante, intervalo, timer_ativo
+    if tempo_restante > 0:
+        tempo_restante -= 1
+        atualizar_display()
+    else:
+        clearInterval(intervalo)
+        timer_ativo = False
+        document.getElementById("timer").innerText = "Tempo Finalizado!"
+
+def iniciar_timer(*args):
+    global intervalo, timer_ativo
+    if not timer_ativo:
+        proxy = create_proxy(contar_tempo)
+        intervalo = setInterval(proxy, 1000)
+        timer_ativo = True
+
+def pausar_timer(*args):
+    global intervalo, timer_ativo
+    if timer_ativo:
+        clearInterval(intervalo)
+        timer_ativo = False
+
+def reiniciar_timer(*args):
+    global tempo_restante, intervalo, timer_ativo
+    clearInterval(intervalo)
+    tempo_restante = tempo_padroes[modo_atual]
+    atualizar_display()
+    timer_ativo = False
+
+# Checklist - riscar tarefa
+def toggle_risco(event):
+    checkbox = event.target
+    span = checkbox.nextElementSibling
+    span.style.textDecoration = "line-through" if checkbox.checked else "none"
+
+# Checklist - adicionar tarefa
+def adicionar_tarefa(event):
+    input_element = document.getElementById("novaTarefa")
+    texto = input_element.value.strip()
+    if texto:
+        ul = document.getElementById("listaTarefas")
+        novo_item = document.createElement("li")
+        novo_item.classList.add("task_item")
+
+        checkbox = document.createElement("input")
+        checkbox.setAttribute("type", "checkbox")
+        checkbox.addEventListener("change", create_proxy(toggle_risco))
+
+        span = document.createElement("span")
+        span.innerText = texto
+
+        novo_item.appendChild(checkbox)
+        novo_item.appendChild(span)
+        ul.appendChild(novo_item)
+        input_element.value = ""
+
+# Checklist - limpar tudo
+def limpar_tarefas(event):
+    ul = document.getElementById("listaTarefas")
+    ul.innerHTML = ""
+
+# Eventos iniciais
+document.getElementById("addTask").addEventListener("click", create_proxy(adicionar_tarefa))
+document.getElementById("limparTask").addEventListener("click", create_proxy(limpar_tarefas))
+checkboxes = document.querySelectorAll(".task_item input[type='checkbox']")
+for checkbox in checkboxes:
+    checkbox.addEventListener("change", create_proxy(toggle_risco))
+
+setar_modo("pomodoro")
+    </py-script>
+</body>
+</html>
