@@ -1,0 +1,145 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+.div_esquerda {
+    background: #fff;
+    width: 440px;
+    padding: 20px;
+}
+
+.div_centro {
+    background: #99e4c0;
+    width: 720px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.div_direita {
+    background: #fff;
+    width: 440px;
+    padding: 20px;
+}
+
+h2 {
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px ;
+}
+
+li {
+    list-style-type: none;
+}
+
+.card {
+    width: 400px;
+    height: 123px;
+    background-color: #ebeaea;
+    margin-bottom: 15px;
+    border-radius: 8px;
+}
+
+.check_list input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.check_list button {
+    padding: 8px 12px;
+    border: none;
+    background-color: #99e4c0;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.check_list button:hover {
+    background-color: #738f81;
+    color: white;
+}
+
+.task_item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+}
+
+.task_item input[type="checkbox"] + span {
+    transition: text-decoration 0.2s ease;
+}
+
+.modos {
+    display: flex;
+    margin-bottom: 20px;
+    justify-content: center;
+    width: 370px;
+    height: 29px;
+    gap: 10px;
+}
+
+.modo {
+    width: 96px;
+    height: 29px;
+    border: none;
+    background-color: #99e4c0;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.modo:hover {
+    background-color: #738f81;
+}
+
+.timer {
+    width: 245.5px;
+    height: 108px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 125px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.timer_control {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 200px;
+}
+
+.controle {
+    width: 96.2px;
+    height: 39px;
+    border: none;
+    background-color: #99e4c0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.controle:hover {
+    background-color: #738f81;
+    color: white;
+}
+
+.pomoStudy{
+    margin-bottom: 200px;
+}
